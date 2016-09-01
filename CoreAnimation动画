@@ -1,0 +1,112 @@
+在CoreAnimation中的动画基本概念有CALayer,CAAnimation, AddAnimation
+一、CALayer
+CALayer
+
+二、CAAnimation
+1、CABaseAnimation
+通过设定起始点，终点，时间，动画会沿着设定的店进行移动。
+2、CAKeyFrameAnimation
+关键帧动画，可以通过设定CALayer的起始点，中间点，终点的frame，时间，然后动画会沿着设定的轨迹进行移动；CABaseAnimation可以看作是特殊的CAKeyFrameAnimation,即不考虑动画的中间过程。
+1）values属性
+values属性指明整个动画过程中的关键帧点，例如上例中的A-E就是通过values指定的。需要注意的是，起点必须作为values的第一个值。
+（2）path属性
+作用与values属性一样，同样是用于指定整个动画所经过的路径的。需要注意的是，values与path是互斥的，当values与path同时指定时，path会覆盖values，即values属性将被忽略
+（3）keyTimes属性
+该属性是一个数组，用以指定每个子路径(AB,BC,CD)的时间。如果你没有显式地对keyTimes进行设置，则系统会默认每条子路径的时间为：ti=duration/(5-1)，即每条子路径的duration相等，都为duration的1\4。当然，我们也可以传个数组让物体快慢结合。例如，你可以传入{0.0, 0.1,0.6,0.7,1.0}，其中首尾必须分别是0和1，因此tAB=0.1-0, tCB=0.6-0.1, tDC=0.7-0.6, tED=1-0.7.....
+（4）timeFunctions属性
+用过UIKit层动画的同学应该对这个属性不陌生，这个属性用以指定时间函数，类似于运动的加速度，有以下几种类型。上例子的AB段就是用了淡入淡出效果。记住，这是一个数组，你有几个子路径就应该传入几个元素
+1 kCAMediaTimingFunctionLinear//线性
+2 kCAMediaTimingFunctionEaseIn//淡入
+3 kCAMediaTimingFunctionEaseOut//淡出
+4 kCAMediaTimingFunctionEaseInEaseOut//淡入淡出
+5 kCAMediaTimingFunctionDefault//默认
+（5）calculationMode属性
+该属性决定了物体在每个子路径下是跳着走还是匀速走
+
+3、CAAnimationGroup
+把Layer的搜友动画组合起来。一个layer设定了很多动画，他们都会同时执行。
+4、CATransform
+苹果封装好的动画，可以实现移动，缩放等
+/**
+ *  多种动画组合
+ */
+- (void)addGroupAnimation {
+    CALayer *scaleLayer = [[CALayer alloc] init];
+    scaleLayer.backgroundColor = [UIColor blueColor].CGColor;
+    scaleLayer.frame = CGRectMake(50, 50, 50, 50);
+    scaleLayer.cornerRadius = 5;
+    [self.view.layer addSublayer:scaleLayer];
+    
+    // 缩略动画
+    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    scaleAnimation.fromValue = [NSNumber numberWithFloat:1.0];
+    scaleAnimation.toValue = [NSNumber numberWithFloat:1.5];
+    scaleAnimation.autoreverses = YES;
+    scaleAnimation.fillMode = kCAFillModeForwards;
+    scaleAnimation.repeatCount = MAXFLOAT;
+    scaleAnimation.duration = 0.8;
+    
+    // 旋转动画
+    CABasicAnimation *rotateAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.y"];
+    rotateAnimation.fromValue = [NSNumber numberWithFloat:0.0];
+    rotateAnimation.toValue = [NSNumber numberWithFloat: M_PI * 0.3];
+    rotateAnimation.autoreverses = YES;
+    rotateAnimation.fillMode = kCAFillModeForwards;
+    rotateAnimation.repeatCount = MAXFLOAT;
+    rotateAnimation.duration = 0.8;
+    
+    // 位置动画
+    CABasicAnimation *moveAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+    moveAnimation.fromValue = [NSValue valueWithCGPoint:scaleLayer.position];
+    moveAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(scaleLayer.position.x + 10, scaleLayer.position.y + 10)];
+    moveAnimation.autoreverses = YES;
+    moveAnimation.repeatCount = MAXFLOAT;
+    moveAnimation.duration = 0.3;
+    
+    
+    
+    CAAnimationGroup *groupAnimation = [CAAnimationGroup animation];
+    groupAnimation.duration = 2;
+    groupAnimation.autoreverses = YES;
+    groupAnimation.animations = @[scaleAnimation ,moveAnimation, rotateAnimation];
+    groupAnimation.repeatCount = MAXFLOAT;
+    
+    [scaleLayer addAnimation:groupAnimation forKey:@"group"];
+    
+}
+
+
+
+/**
+ *  关键帧动画
+ */
+- (void)addKeyFrameAnimation{
+    CALayer *layer = [[CALayer alloc] init];
+    layer.backgroundColor = [UIColor blueColor].CGColor;
+    layer.frame = CGRectMake(50, 50, 6, 6);
+    layer.cornerRadius = 3;
+    [self.view.layer addSublayer:layer];
+
+    
+    // 设置关键帧位置(values)
+//    CAKeyframeAnimation *runAnimation = [CAKeyframeAnimation animationWithKeyPath:@"position"];
+//    runAnimation.values = @[[NSValue valueWithCGPoint:layer.frame.origin], [NSValue valueWithCGPoint:CGPointMake(layer.frame.origin.x + 100, layer.frame.origin.y)], [NSValue valueWithCGPoint:CGPointMake(layer.frame.origin.x + 100, layer.frame.origin.y + 100)], [NSValue valueWithCGPoint:CGPointMake(layer.frame.origin.x, layer.frame.origin.y + 100)], [NSValue valueWithCGPoint:layer.frame.origin]];
+//    runAnimation.repeatCount = MAXFLOAT;
+//    runAnimation.duration= 2;
+    
+//    设置关键帧位置(path)
+     CAKeyframeAnimation *runAnimation = [CAKeyframeAnimation animationWithKeyPath:@"position"];
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, NULL, 50, 50);
+    CGPathAddLineToPoint(path, NULL, 300, 50);
+    CGPathAddLineToPoint(path, NULL, 300, 200);
+    CGPathAddLineToPoint(path, NULL, 50, 200);
+    CGPathAddLineToPoint(path, NULL, 50, 50);
+    runAnimation.path = path;
+    runAnimation.repeatCount = MAXFLOAT;
+    runAnimation.duration= 2;
+    
+    [layer addAnimation:runAnimation forKey:@"rect"];
+    
+    
+}

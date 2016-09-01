@@ -12,22 +12,22 @@ NSURL *someURL = nil;
 id someObject = nil;   
 if (anotherObject == nil) // do something 
 
-###Nil
-　　Nil 是 ObjC 类类型的书面空值，对应 Class 类型对象。 
-　　例如： 
-　　Class someClass = Nil; 
-　　Class anotherClass = [NSString class]; 
+###Nil 
+Nil是 ObjC 类类型的书面空值，对应 Class 类型对象。   
+例如：   
+Class someClass = Nil;    
+Class anotherClass = [NSString class]; 
 　　
 　　
-###NSNull
-　　NSNull 是一个代表空值的类，是一个 ObjC 对象。实际上它只有一个单例方法：+[NSNull null]，一般用于表示集合中值为空的对象。
-　　例如：
-　　// 因为 nil 被用来用为集合结束的标志，所以 nil 不能存储在 Foundation 集合里。
-　　NSArray *array = [NSArray arrayWithObjects:@"one", @"two", nil];
-　　// 错误的使用
-　　NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-　　[dict setObject:nil forKey:@"someKey"];
-　　// 正确的使用
-　　NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+###NSNull   
+NSNull 是一个代表空值的类，是一个 ObjC 对象。实际上它只有一个单例方法：+[NSNull null]，一般用于表示集合中值为空的对象。   
+例如：   
+// 因为 nil 被用来用为集合结束的标志，所以 nil 不能存储在 Foundation 集合里。   
+NSArray *array = [NSArray arrayWithObjects:@"one", @"two", nil];   
+// 错误的使用   
+NSMutableDictionary *dict = [NSMutableDictionary dictionary];   
+[dict setObject:nil forKey:@"someKey"];   
+// 正确的使用   
+NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 　　[dict setObject:[NSNull null] forKey:@"someKey"];
 

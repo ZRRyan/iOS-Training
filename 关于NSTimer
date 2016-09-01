@@ -1,0 +1,10 @@
+关于NSTimer有时候会遇到滞后的现象，这是因为默认情况下是将NSTimer加入到当前的runloop中，当前的runloop即main runloop，主要负责处理主线程的事件；当然，主线程需要处理的事情是比较多，且很繁琐的；因此会造成计时器的滞后；
+解决以上问题可采取一下方法：
+1、在子线程中进行NSTimer的工作；然后在主线程中进行UI显示的工作。
+2、仍然在主线程中进行，但是需要将main runloop加入到特定的模式中，这样就可以避免做复杂操作时对NSTimer的影响了；
+if (self.timer) {
+     [self.timer invalidate];
+     self.timer = nil;
+}
+self.timer = [NSTimer timerWithTimeInterval:0.01 target:self selector:@selector(addTime) userInfo:nil repeats:YES];
+ [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
